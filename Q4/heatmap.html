@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+body {
+  font: 10px sans-serif;
+}
+
+.label {
+  font-weight: bold;
+}
+
+.tile {
+  shape-rendering: crispEdges;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.position{
+  position:absolute;
+  top: 40; left: 40;
+}
+
+</style>
+
+<body>
+Range of 
+
+</body>
+
+<script src="../lib/d3.v5.min.js"></script>
+<script>
+
+
+var data = ["0 to 9", "10 to 99", "100 to 499", "500 or above"];
+//var data = ["Please select a range", "0 to 9", "10 to 99", "100 to 499", "500 or above"];
+var Selection=0;
+
+var select = d3.select('body')
+  .append('select')
+    .attr('class','select')
+    .on('change',onchange)
+
+var options = select
+  .selectAll('option')
+  .style("position", ".position" )
+  .data(data).enter()
+  .append('option')
+    .text(function (d) { return d; });
+
+function onchange() {
+  selectValue = d3.select('select').property('value')
+  d3.select('body')
+    .append('p')
+    Selection = selectValue
+d3.select("svg").remove();
+
+var dataset=[]; 
+var xStates=[];
+var yYears=[];
+var colorPair=[];
+var myColors=["#fff7ec","#fee8c8", "#fdd49e","#fdbb84", "#fc8d59","#ef6548", "#d7301f","#b30000","#7f0000"];
+console.log(typeof(myColors))
+d3.csv("earthquakes.csv")
+  .then(function(d){
+  d.forEach(function(l){
+    if (l["Category"]==Selection)
+    {
+      dataset.push({"state": l["States"], "year": 2015, "count": +l["2015"],"category": l["Category"]} );
+      dataset.push({"state": l["States"], "year": 2014, "count": +l["2014"],"category": l["Category"]} );
+      dataset.push({"state": l["States"], "year": 2013, "count": +l["2013"],"category": l["Category"]} );
+      dataset.push({"state": l["States"], "year": 2012, "count": +l["2012"],"category": l["Category"]} );
+      dataset.push({"state": l["States"], "year": 2011, "count": +l["2011"],"category": l["Category"]} );
+      dataset.push({"state": l["States"], "year": 2010, "count": +l["2010"],"category": l["Category"]} );
+      xStates.push(l["States"]);
+    }
+    
+
+  });
+    dataset.forEach(function(u){
+      if (yYears.indexOf(u["year"]) == -1)
+      yYears.push(u["year"]);
+    });
+
+var margin = {top: 100, right: 100, bottom: 100, left: 100}
+    , width = window.innerWidth - margin.left - margin.right 
+    , height = window.innerHeight - margin.top - margin.bottom; 
+
+  var xScale = d3.scaleBand()
+    .domain(xStates) 
+    .range([0, width])
+    .padding(0.05);
+
+  var yScale = d3.scaleBand()
+    .domain(yYears) 
+    .range([height, 0])
+    .padding(0.05); 
+
+  var colorScale = d3.scaleQuantile()
+    .domain([d3.min(dataset, function(d) { return d["count"]; }), d3.max(dataset, function(d) { return d["count"]; })])
+    .range(myColors);
+
+var svg = d3.select("body").append("svg")
+      .attr("width", width + margin.left + margin.right)
+      .attr("height", height + margin.top + margin.bottom)
+      .append("g")
+      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+  svg.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0," + height + ")")
+      .call(d3.axisBottom(xScale))
+      .selectAll("text")  
+            .style("text-anchor", "end")
+            .attr("dx", "-.8em")
+            .attr("dy", ".15em")
+            .attr("transform", function(d) {
+                return "rotate(-45)" 
+                });
+  svg.append("g")
+      .attr("class", "y axis")
+      .call(d3.axisLeft(yScale)); 
+
+  svg.selectAll(".tile")
+      .data(dataset)
+    .enter().append("rect")
+      .attr("class", "tile")
+      .attr("x", function(d) { return xScale(d["state"]); })
+      .attr("y", function(d) { return yScale(d["year"] ); })
+      .attr("width", xScale.bandwidth())
+      .attr("height",  yScale.bandwidth())
+      .style("fill", function(d) { 
+        var temp=colorScale(d["count"]);
+        colorPair.push({"color": temp, "count":d.count});
+        return temp; })
+      .on("mouseover", handleMouseOver)
+      .on("mouseout", handleMouseOut);
+
+function handleMouseOver(d, i) { 
+  svg.append("text")
+      .text(d["state"]+" "+d["year"]+": "+d["count"])
+      .attr("id",  (d["state"].slice(0,3)+d["year"]+i))
+      .attr("fill", "black") 
+      .attr("font-size", "15px")
+      .attr("x",500)
+      .attr("y",-10) 
+  }
+function handleMouseOut(d, i) {
+      d3.select("#"+d["state"].slice(0,3)+d["year"]+i).remove();
+  }
+
+svg.append("text")
+      .text("Visualing Earthquake Counts by State 2010-2015(M3+)")
+      .attr("fill", "black") 
+      .attr("font-size", "20px")
+      .attr("x",400)
+      .attr("y",-40)
+
+svg.append("text")
+    .text("Count")
+    .attr("fill","black")
+    .attr("front-size","28px")
+    .attr("x", 1234)
+    .attr("y",-5)
+
+    var colorNum=[0,0,0,0,0,0,0,0,0]
+    //console.log(colorPair[9]["color"]);
+for (var i=0;i<myColors.length;i++)
+{
+  var max=0;
+  for (var j=0;j<colorPair.length;j++)
+  {
+    if (colorPair[j]["color"]==myColors[i])
+      if (colorPair[j]["count"]>max)
+        max=colorPair[j]["count"]
+  }
+  colorNum[i]=max;
+}
+
+for(var i=1;i<colorNum.length;i++)
+{
+  if (colorNum[i]==0)
+    if (i==length-1)
+      colorNum[i]=d3.max(dataset, function(d) { return d["count"]; });
+    else
+      colorNum[i]=0.5*(colorNum[i-1]+colorNum[i+1]);
+}
+
+var color_scale = ['#fff7ec','#fee8c8', '#fdd49e','#fdbb84', '#fc8d59','#ef6548', '#d7301f','#b30000','#7f0000']
+var lineLegend = svg.selectAll(".lineLegend").data(colorNum)
+    .enter().append("g")
+    .attr("class","lineLegend")
+    .attr("transform", function (d,i) {
+            return "translate(" + width + "," + (i*40)+")";
+        });
+lineLegend.append("text").text(function (d) {return d;})
+    .attr("transform", "translate(21,9)"); 
+lineLegend.append("rect")
+    .attr("fill", function (d, i) {return color_scale[i]; })
+    .attr("width", 20).attr("height", 40);
+  });
+};
+</script>

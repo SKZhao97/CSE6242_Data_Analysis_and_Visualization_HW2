@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<script src="../lib/d3.v5.min.js"></script>
+<style type="text/css">
+
+.line {
+    fill: none;
+    stroke: #ffab00;
+    stroke-width: 2;
+}
+.overlay {
+  fill: none;
+  pointer-events: all;
+}
+.dot {
+    fill: #ffab00;
+    stroke: #fff;
+} 
+  .focus circle {
+  fill: none;
+  stroke: steelblue;
+}
+
+.line1 {
+    fill: none;
+    stroke: #CC0000;
+    stroke-width: 2;
+}
+.line2 {
+    fill: none;
+    stroke: #005ce6;
+    stroke-width: 2;
+}
+.line3 {
+    fill: none;
+    stroke: #4d0099;
+    stroke-width: 2;
+}
+.line4 {
+    fill: none;
+    stroke: #29a329;
+    stroke-width: 2;
+} 
+.circle1 {
+    fill: #CC0000;
+    stroke: #fff;
+
+}
+.circle2 {
+    fill: #005ce6;
+    stroke: #fff;
+}
+.circle3 {
+    fill: #4d0099;
+    stroke: #fff;
+}
+.circle4 {
+    fill: #29a329;
+    stroke: #fff;
+}
+.focus circle {
+  fill: none;
+  stroke: steelblue;
+}
+
+</style>
+<body>
+</body>
+<script>
+var dataset=[];
+var dataset_Midwest=[];
+var dataset_Northeast=[];
+var dataset_West=[];
+var dataset_South=[];//Total dataset for each region
+var Midwest_data_year=[];
+var Northeast_data_year=[];
+var West_data_year=[];
+var South_data_year=[];//
+var data_total_Midwest=[];
+var data_total_Northeast=[];
+var data_total_West=[];
+var data_total_South=[];//Year and count
+
+var year_min=0;
+var year_max=0;
+                  
+d3.csv('state-year-earthquakes.csv',function(data){
+  return {
+    state: data["state"],
+    region: data["region"],
+    year: +data["year"],
+    count: +data["count"]
+  }
+}).then(function(d){
+    year_max=d3.max(d, function(d) { return d["year"]; })
+    year_min=d3.min(d, function(d) { return d["year"]; })
+    d.forEach(function(l){
+      dataset.push({state: l["state"], region:l["region"], year:l["year"], count:l["count"]})
+    });
+    d.forEach(function(l){
+      if (l["region"]=="Midwest")
+        dataset_Midwest.push({state :l["state"], year: l["year"], count:l["count"]});
+      if (l["region"]=="Northeast")
+        dataset_Northeast.push({state :l["state"], year: l["year"], count:l["count"]});
+      if (l["region"]=="West")
+        dataset_West.push({state :l["state"], year: l["year"], count:l["count"]});
+      if (l["region"]=="South")
+        dataset_South.push({state :l["state"], year: l["year"], count:l["count"]});
+      })
+
+    //Midwest
+    var temp=[];
+    dataset_Midwest.forEach(function(k){
+      
+      if (temp.indexOf(k["year"]) == -1)
+      {
+        Midwest_data_year.push(0)
+        temp.push(k["year"])
+    }
+  });
+    dataset_Midwest.forEach(function(k){
+      for(var i=0;i<=(year_max-year_min+1);i++){
+        if (k["year"]==(i+year_min))
+        {
+          Midwest_data_year[i]+=k["count"];          
+        }
+      }
+    });
+    for (var i=0; i<Midwest_data_year.length;i++)
+    {
+      data_total_Midwest.push({x:year_min+i, y:Midwest_data_year[i], region: "Midwest"})
+    }
+
+    //Northeast
+    var temp=[];
+    dataset_Northeast.forEach(function(k){
+      if (temp.indexOf(k["year"]) == -1)
+      {
+        Northeast_data_year.push(0)
+        temp.push(k["year"])
+      }
+    });
+    dataset_Northeast.forEach(function(k){
+      for(var i=0;i<=(year_max-year_min+1);i++){
+        if (k["year"]==(i+year_min))
+        {
+          Northeast_data_year[i]+=k["count"];          
+        }
+      }
+    });
+
+for (var i=0; i<Northeast_data_year.length;i++)
+{
+  data_total_Northeast.push({x:year_min+i, y:Northeast_data_year[i], region: "Northeast"})
+}
+    //West
+    var temp=[];
+    dataset_West.forEach(function(k){
+      if (temp.indexOf(k["year"]) == -1)
+      {
+        West_data_year.push(0)
+        temp.push(k["year"])
+      }
+    });
+    dataset_West.forEach(function(k){
+      for(var i=0;i<=(year_max-year_min+1);i++){
+        if (k["year"]==(i+year_min))
+        {
+          West_data_year[i]+=k["count"];          
+        }
+      }
+    });
+
+for (var i=0; i<West_data_year.length;i++)
+{
+  data_total_West.push({x:year_min+i, y:West_data_year[i], region: "West"})
+}
+
+    //South
+    var temp=[];
+    dataset_South.forEach(function(k){
+      if (temp.indexOf(k["year"]) == -1)
+      {
+        South_data_year.push(0)
+        temp.push(k["year"])
+      }
+    });
+    dataset_South.forEach(function(k){
+      for(var i=0;i<=(year_max-year_min+1);i++){
+        if (k["year"]==(i+year_min))
+        {
+          South_data_year[i]+=k["count"];          
+        }
+      }
+    });
+
+for (var i=0; i<South_data_year.length;i++)
+{
+  data_total_South.push({x:year_min+i, y:South_data_year[i], region: "South"})
+}
+
+var max_num=[];
+  max_num.push({region: "Midwest", total: d3.max(data_total_Midwest,function(t){return t["y"]})})
+  max_num.push({region: "Northeast", total: d3.max(data_total_Northeast,function(t){return t["y"]})})
+  max_num.push({region: "West", total: d3.max(data_total_West,function(t){return t["y"]})})
+  max_num.push({region: "South", total: d3.max(data_total_South,function(t){return t["y"]})})
+
+var margin = {top: 100, right: 150, bottom: 100, left: 150}
+    , width = window.innerWidth - margin.left - margin.right-50 
+    , height = window.innerHeight - margin.top - margin.bottom-100; 
+
+var xScale = d3.scaleTime()
+    .domain([new Date(year_min), new Date(year_max)]) 
+    .range([0, width-50])
+
+var xScale1 = d3.scaleTime()
+    .domain([new Date(year_min.toString()), new Date(year_max.toString())]) 
+    .range([0, width-50])
+
+var yScale = d3.scaleLinear()
+    .domain([0, d3.max(max_num,function(k){return k["total"]})]) 
+    .range([height, 0]);
+
+
+var svg = d3.select("body").append("svg")
+      .attr("width", width + margin.left + margin.right)
+      .attr("height", height + margin.top + margin.bottom)
+      .append("g")
+      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+svg.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0," + height + ")")
+      .call(d3.axisBottom(xScale1))
+      
+svg.append("g")
+      .attr("class", "y axis")
+      .call(d3.axisLeft(yScale)); 
+
+svg.append("text")
+      .text("US Earthquakes by Region 2010-2015")
+      .attr("fill", "black") 
+      .attr("font-size", "20px")
+      .attr("x",400)
+      .attr("y",-20)
+
+var line1 = d3.line()
+    .x(function(k) {return xScale(k.x); }) 
+    .y(function(k) {return yScale(k.y); }) 
+  svg.append("path")
+      .datum(data_total_Midwest) 
+      .attr("class", "line1") 
+      .attr("d", line1);    
+  svg.selectAll(".dot")
+      .data(data_total_Midwest)
+    .enter().append("circle") 
+      .attr("class", "circle1") 
+      .attr("cx", function(d) {return xScale(d.x) })
+      .attr("cy", function(d) {return yScale(d.y) })
+      .attr("r", 4)
+      .on("mouseover", handleMouseOver)
+      .on("mouseout", handleMouseOut);
+//Northeast
+var line2 = d3.line()
+    .x(function(k) {return xScale(k.x); }) 
+    .y(function(k) {return yScale(k.y); }) 
+  svg.append("path")
+      .datum(data_total_Northeast) 
+      .attr("class", "line2") 
+      .attr("d", line2);    
+  svg.selectAll(".dot")
+      .data(data_total_Northeast)
+    .enter().append("circle") 
+      .attr("class", "circle2") 
+      .attr("cx", function(d) {return xScale(d.x) })
+      .attr("cy", function(d) {return yScale(d.y) })
+      .attr("r", 4)
+      .on("mouseover", handleMouseOver)
+      .on("mouseout", handleMouseOut);
+
+//West
+var line3 = d3.line()
+    .x(function(k) {return xScale(k.x); }) 
+    .y(function(k) {return yScale(k.y); }) 
+  svg.append("path")
+      .datum(data_total_West) 
+      .attr("class", "line3") 
+      .attr("d", line3);    
+  svg.selectAll(".dot")
+      .data(data_total_West)
+    .enter().append("circle") 
+      .attr("class", "circle3") 
+      .attr("cx", function(d) {return xScale(d.x) })
+      .attr("cy", function(d) {return yScale(d.y) })
+      .attr("r", 4)
+      .on("mouseover", handleMouseOver)
+      .on("mouseout", handleMouseOut);
+//South
+var line4 = d3.line()
+    .x(function(k) {return xScale(k.x); }) 
+    .y(function(k) {return yScale(k.y); }) 
+  
+  svg.append("path")
+      .datum(data_total_South) 
+      .attr("class", "line4") 
+      .attr("d", line4);    
+  svg.selectAll(".dot")
+      .data(data_total_South)
+    .enter().append("circle") 
+      .attr("class", "circle4") 
+      .attr("cx", function(d) {return xScale(d.x) })
+      .attr("cy", function(d) {return yScale(d.y) })
+      .attr("r", 4)
+      .on("mouseover", handleMouseOver)
+      .on("mouseout", handleMouseOut);
+
+var width1=width+20;
+var legend_keys = ["Midwest", "Northeast", "West", "South"]
+var color_scale = ['#CC0000', '#005ce6', '#4d0099', '#29a329']
+var lineLegend = svg.selectAll(".lineLegend").data(legend_keys)
+    .enter().append("g")
+    .attr("class","lineLegend")
+    .attr("transform", function (d,i) {
+            return "translate(" + width1 + "," + (i*20)+")";
+        });
+lineLegend.append("text").text(function (d) {return d;})
+    .attr("transform", "translate(21,6)"); 
+
+lineLegend.append("circle")
+    .attr("fill", function (d, i) {return color_scale[i]; })
+    .attr("r", 5)
+
+var svg1 = d3.select("body")
+        .append("svg")
+        .attr("width", width)
+        .attr("height", height+100)
+        .attr("fill", "#0066cc");
+var length_sub=0;
+
+ function handleMouseOver(d, i) {  
+    d3.select(this).attr("fill", "#cc6600")
+    d3.select(this).attr("r", 8)
+
+    var dataset_sub=[];
+    for (var i=0; i<dataset.length;i++)
+    {
+      if ((dataset[i]["year"]==d.x)&&(dataset[i]["region"]==d.region))
+        dataset_sub.push({state:dataset[i]["state"], count:dataset[i]["count"]})
+    }
+    var dataset_sub_presorted=[];
+    var l= dataset_sub.length;
+    length_sub=l;
+    for (var i=0;i<l;i++)
+    {
+      dataset_sub_presorted.push(dataset_sub[l-1-i]);
+    }
+
+      function compare(property){
+         return function(obj1,obj2){
+             var value1 = obj1[property];
+             var value2 = obj2[property];
+             return value2 - value1;     
+         }
+    }
+    var dataset_sub_sorted = dataset_sub_presorted.sort(compare("count"));
+    var states=[];
+    for (var i=0;i<l; i++)
+    {
+      states.push(dataset_sub_sorted[i]["state"])
+    }
+    var xScale_sub = d3.scaleLinear()
+        .domain([0,d3.max(dataset_sub_sorted, function(d){return d.count} )])
+        .range([0,width]) 
+    var yScale_sub = d3.scaleBand()
+        .domain(states)
+        .range([0,height])
+
+for (var j=0;j<l;j++)
+{
+    svg1.append('rect')
+        .attr("y", (yScale_sub(dataset_sub_sorted[j]["state"])+50))
+        .attr("x",150)
+        .attr('width',xScale_sub(dataset_sub_sorted[j]["count"]))
+        .attr('height',(height/l-3))
+        .attr("id",(d.region+d.x+j))
+   }     
+
+    svg1.append("g")
+       .attr("class", "axis")
+       .attr("transform", "translate(150," + (height+50) + ")")
+       .call(d3.axisBottom(xScale_sub))
+       .attr("id", (d.region+d.x+"03"));
+    
+    svg1.append("g")
+       .attr("class", "axis")
+       .attr("transform", "translate(" + 150 + ",50)")
+       .call(d3.axisLeft(yScale_sub))
+       .attr("id", (d.region+d.x+"02"));
+
+    svg1.append("text")
+        .text(d.region+" Region Earthquakes "+d.x)
+        .attr("fill", "black") 
+        .attr("font-size", "20px")
+        .attr("x",450)
+        .attr("y",30)
+        .attr("id", (d.region+d.x+"01"));
+}
+
+function handleMouseOut(d, i) {
+    for (var j=0;j<length_sub;j++)
+    {
+      d3.select("#"+d.region+d.x+j).remove();
+    }
+    d3.select(this).attr("r", 4)
+    d3.select("#"+d.region+d.x+"01").remove();
+    d3.select("#"+d.region+d.x+"02").remove();
+    d3.select("#"+d.region+d.x+"03").remove();
+  }
+ });
+</script>

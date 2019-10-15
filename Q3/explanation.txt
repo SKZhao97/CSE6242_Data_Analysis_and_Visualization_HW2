@@ -1,0 +1,1 @@
+When the range of data is large, or the distribution is uneven, using nonlinear scales has good effects because it makes data more evenly distributed and trend more moderate. Especially when the lines are overlap or concentrate at small values which makes the trend not obvious.

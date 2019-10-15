@@ -1,0 +1,30 @@
+1. Ease to develop for developers
+
+  Tableau: Easy to input and refine data and develop visualization based on graphical interface and embedded functions
+  D3: Require good command of JavaScript and D3's toolset but has massive library
+  Excel: Easy to operate data and develop basic visualization using pivot table
+
+
+2. Ease to maintain the visualization for developers 
+
+  Tableau: Need re-input then re-design if data changes and license required if platform changes
+  D3: Pretty easy to maintain because JavaScript programs are flexible to the changes of data or platforms 
+  Excel: Easy to replace data and maintain the visualization
+
+3. Usability of visualization developed for end users
+
+  Tableau: Excellent usability for end users because of the attractive visualization effects and interactive experience
+  D3: Excellent usability because of the various visualization partterns and interactive events
+  Excel: Fair usability for users with limited interactive events and ordinary design of visualization  
+
+4. Scalability of visualization to “large” datasets 
+
+  Tableau: Scalable to deal with large datasets because of excellent data connection ability
+  D3: Good scalability to large datasets because the essence of D3 is code
+  Excel: Not suitable to deal with large datasets because direct operations on cells, columns and rows
+
+5. System requirements to run the visualization (e.g., browsers, OS, software licensing) for end users 
+
+  Tableau: Needs license with high cost for any OS (e.g. windows, Mac) and cannot run on browsers
+  D3: Run on any browsers or OS without licensing because of JavaScript's compatibility 
+  Excel: Partially needs license for any OS and cannot run on browsers
